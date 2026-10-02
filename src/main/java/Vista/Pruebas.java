@@ -1,10 +1,14 @@
 package Vista;
 
+import Controlador.ClienteControlador;
 import Controlador.EmpleadoControlador;
 import Modelo.Clases.Cliente;
 import Modelo.Clases.Empleado;
 import Modelo.Clases.Pago;
 import Modelo.Clases.Prestamo;
+import Modelo.Excepciones.DatoInvalidoException;
+import Modelo.Excepciones.PersistenciaException;
+import Modelo.Excepciones.RegistroNoEncontradoExcepcion;
 import Modelo.Persistencia.ClienteDAO;
 import Modelo.Persistencia.ConexionBD;
 import Modelo.Persistencia.PagoDAO;
@@ -14,7 +18,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 
 public class Pruebas {
-    static void main() {
+    static void main() throws PersistenciaException, RegistroNoEncontradoExcepcion, DatoInvalidoException {
         // ---------- 1. CONEXIÓN ----------
 
         System.out.println("=== 1. Probando conexión ===");
@@ -85,6 +89,21 @@ public class Pruebas {
             } catch (Exception e) {
                 System.out.println("OK, error esperado: " + e.getMessage());
             }
+
+            // ---------- 8. PRUEBA CLIENTE ----------
+            System.out.println("\n=== 8. PRUEBA CLIENTE ===");
+
+            ClienteControlador cliCtrl = new ClienteControlador();
+            Cliente c = cliCtrl.registrar("Laura Ruiz", "L-" + System.currentTimeMillis(),
+                    "laura@mail.com", "3109876543");
+            System.out.println("Cliente: " + c.obtenerResumen());
+            System.out.println("Préstamos de Laura: " + cliCtrl.consultarPrestamos(c.getId()).size());
+            try {
+                cliCtrl.buscarPorId(99999);
+            } catch (Exception e) {
+                System.out.println("OK, error esperado: " + e.getMessage());
+            }
+
 
             System.out.println("\nTodas las pruebas terminaron.");
 

@@ -17,7 +17,7 @@ public class EmpleadoControlador {
     }
 
     public Empleado registrar(String nombre, String documento, String correo, String rol, double salario)
-            throws DatoInvalidoException, PagoInvalidoException, PersistenciaException {
+            throws DatoInvalidoException, PersistenciaException {
 
         if (nombre == null || nombre.isBlank()) {
             throw new DatoInvalidoException("El nombre es obligatorio.");
