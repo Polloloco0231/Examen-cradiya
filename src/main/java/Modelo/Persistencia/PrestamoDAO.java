@@ -34,7 +34,7 @@ public class PrestamoDAO implements Repositorio<Prestamo> {
         }
     }
 
-    public void actualizar(Prestamo p) throws SQLException {
+    public static void actualizar(Prestamo p) throws SQLException {
         String sql = "UPDATE prestamos SET saldo_pendiente = ?, estado = ? WHERE id = ?";
         try (Connection con = ConexionBD.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

@@ -1,11 +1,7 @@
 package Vista;
 
-import Controlador.ClienteControlador;
-import Controlador.EmpleadoControlador;
-import Modelo.Clases.Cliente;
-import Modelo.Clases.Empleado;
-import Modelo.Clases.Pago;
-import Modelo.Clases.Prestamo;
+import Controlador.*;
+import Modelo.Clases.*;
 import Modelo.Excepciones.DatoInvalidoException;
 import Modelo.Excepciones.PersistenciaException;
 import Modelo.Excepciones.RegistroNoEncontradoExcepcion;
@@ -104,6 +100,88 @@ public class Pruebas {
                 System.out.println("OK, error esperado: " + e.getMessage());
             }
 
+            System.out.println("\n=== 9. PRUEBA PRÉSTAMO ===");
+            PrestamoControlador preCtrl = new PrestamoControlador();
+            Prestamo nuevo = preCtrl.crear(cli.getId(), emp.getId(), 500000, 5, 3);
+            System.out.println("Creado: " + nuevo);
+            System.out.println("Esperado -> total: 525000.0, cuota: 175000.0");
+
+            preCtrl.cambiarEstado(nuevo.getId(), EstadoPrestamo.PAGADO);
+            System.out.println("Estado en BD: " + preCtrl.buscarPorId(nuevo.getId()).getEstado()
+                    + " (esperado PAGADO)");
+
+            try {
+                preCtrl.crear(99999, emp.getId(), 500000, 5, 3);
+            } catch (Exception e) {
+                System.out.println("OK, error esperado: " + e.getMessage());
+            }
+            try {
+                preCtrl.crear(cli.getId(), emp.getId(), -100, 5, 3);
+            } catch (Exception e) {
+                System.out.println("OK, error esperado: " + e.getMessage());
+            }
+
+            System.out.println("\n=== 10. PRUEBA PAGOS ===");
+            PagoControlador pagoCtrl = new PagoControlador();
+            Prestamo p10 = preCtrl.crear(cli.getId(), emp.getId(), 600000, 0, 3);
+
+            pagoCtrl.registrarPago(p10.getId(), 200000);
+            System.out.println("Saldo tras 1er pago: " + pagoCtrl.consultarSaldo(p10.getId())
+                    + " (esperado 400000.0)");
+
+            try {
+                pagoCtrl.registrarPago(p10.getId(), 500000);
+            } catch (Exception e) {
+                System.out.println("OK, error esperado: " + e.getMessage());
+            }
+            try {
+                pagoCtrl.registrarPago(p10.getId(), -50);
+            } catch (Exception e) {
+                System.out.println("OK, error esperado: " + e.getMessage());
+            }
+
+            pagoCtrl.registrarPago(p10.getId(), 400000);
+            System.out.println("Saldo final: " + pagoCtrl.consultarSaldo(p10.getId())
+                    + " (esperado 0.0)");
+            System.out.println("Estado: " + preCtrl.buscarPorId(p10.getId()).getEstado()
+                    + " (esperado PAGADO)");
+
+            try {
+                pagoCtrl.registrarPago(p10.getId(), 1000);
+            } catch (Exception e) {
+                System.out.println("OK, error esperado: " + e.getMessage());
+            }
+
+            System.out.println("Histórico (esperado 2 pagos):");
+            pagoCtrl.historial(p10.getId()).forEach(System.out::println);
+
+
+            System.out.println("\n=== 11. PRUEBA REPORTES ===");
+
+// Préstamo vencido: inicia hace 6 meses y dura 2 cuotas, así que venció hace 4 meses
+            Prestamo vencido = new Prestamo(cli.getId(), emp.getId(), 300000, 10, 2,
+                    LocalDate.now().minusMonths(6));
+            prestamoDAO.guardar(vencido);
+
+            ReporteControlador repCtrl = new ReporteControlador();
+
+            System.out.println("Activos: " + repCtrl.prestamosActivos().size());
+            System.out.println("Vencidos: " + repCtrl.prestamosVencidos().size());
+            System.out.println("¿Aparece el vencido recién creado?: "
+                    + repCtrl.prestamosVencidos().stream()
+                    .anyMatch(p -> p.getId() == vencido.getId()) + " (esperado true)");
+
+            System.out.println("Clientes morosos:");
+            repCtrl.clientesMorosos().forEach(cm -> System.out.println("  " + c.obtenerResumen()));
+            System.out.println("¿" + cli.getNombre() + " es moroso?: "
+                    + repCtrl.clientesMorosos().stream()
+                    .anyMatch(cm -> c.getId() == cli.getId()) + " (esperado true)");
+
+            System.out.println("Total prestado: " + repCtrl.totalPrestado());
+            System.out.println("Total recaudado: " + repCtrl.totalRecaudado());
+            System.out.println("Préstamos por empleado: " + repCtrl.prestamosPorEmpleado());
+            repCtrl.clienteMayorDeuda().ifPresent(cs ->
+                    System.out.println("Mayor deuda: " + cs.obtenerResumen()));
 
             System.out.println("\nTodas las pruebas terminaron.");
 
