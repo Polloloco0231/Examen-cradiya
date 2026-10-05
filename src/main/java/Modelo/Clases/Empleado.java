@@ -44,11 +44,14 @@ public class Empleado extends Persona{
     }
 
     public String aLinea() {
-        return getId() + ";" + getNombre() + ";" + getDocumento() + ";" + getCorreo() + ";" + rol + ";" + salario;
+        return getId() + ";" + getNombre() + ";" + getDocumento() + ";" +
+                (getCorreo() == null ? "" : getCorreo()) + ";" + rol + ";" + salario;
     }
 
     public static Empleado deLinea(String linea) {
-        String[] d = linea.split(";");
-        return new Empleado(Integer.parseInt(d[0]), d[1], d[2], d[3], d[4], Double.parseDouble(d[5]));
+        String[] d = linea.split(";", -1);
+        String correo = d[3].isEmpty() ? null : d[3];
+        return new Empleado(Integer.parseInt(d[0]), d[1], d[2], correo, d[4],
+                Double.parseDouble(d[5]));
     }
 }

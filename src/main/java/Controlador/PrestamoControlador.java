@@ -8,7 +8,9 @@ import Modelo.Excepciones.RegistroNoEncontradoExcepcion;
 import Modelo.Persistencia.ClienteDAO;
 import Modelo.Persistencia.EmpleadoDAO;
 import Modelo.Persistencia.PrestamoDAO;
+import Modelo.Persistencia.SincronizadorArchivos;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,34 +27,27 @@ public class PrestamoControlador {
         this.empleadoDAO = new EmpleadoDAO();
     }
 
-    public Prestamo crear(int clienteId, int empleadoId, double monto, double interes, int cuotas)
-        throws DatoInvalidoException, RegistroNoEncontradoExcepcion, PersistenciaException{
+    public Prestamo crear(int clienteId, int empleadoId, double monto,
+                          double interes, int cuotas)
+            throws DatoInvalidoException, RegistroNoEncontradoExcepcion, PersistenciaException {
 
-        if (monto <= 0) {
-            throw new DatoInvalidoException("El monto debe ser mayor que cero.");
-        }
-        if (interes < 0 || interes > 100) {
-            throw new DatoInvalidoException("El interés debe estar entre 0 y 100.");
-        }
-        if (cuotas < 0 ) {
-            throw new DatoInvalidoException("El número de cuotas debe ser mayor que cero.");
-        }
+        validarMonto(monto);
+        validarInteres(interes);
+        validarCuotas(cuotas);
+        validarCliente(clienteId);
+        validarEmpleado(empleadoId);
 
         try {
-            if (clienteDAO.buscarPorId(clienteId) == null){
-                throw new RegistroNoEncontradoExcepcion("No existe un cliente con id " + clienteId);
-            }
-            if (empleadoDAO.buscarPorId(empleadoId) == null){
-                throw new RegistroNoEncontradoExcepcion("No existe un empleado con id " + empleadoId);
-            }
-
-            Prestamo prestamo = new Prestamo(clienteId, empleadoId, monto, interes, cuotas, LocalDate.now());
-
+            Prestamo prestamo = new Prestamo(clienteId, empleadoId, monto, interes,
+                    cuotas, LocalDate.now());
             prestamoDAO.guardar(prestamo);
+            archivos.sincronizarPrestamos();
             return prestamo;
-
         } catch (SQLException e) {
-            throw new PersistenciaException("No se pudo registrar el préstamo",e);
+            throw new PersistenciaException("No se pudo registrar el préstamo.", e);
+        } catch (IOException e) {
+            throw new PersistenciaException("El préstamo se guardó en la base de datos, "
+                    + "pero no se pudo actualizar prestamos.txt.", e);
         }
     }
 
@@ -97,4 +92,46 @@ public class PrestamoControlador {
             throw new PersistenciaException("No se pudo actualizar el estado del préstamo.", e);
         }
     }
+
+    public void validarMonto(double monto) throws DatoInvalidoException {
+        if (monto <= 0) {
+            throw new DatoInvalidoException("El monto debe ser mayor que cero.");
+        }
+    }
+
+    public void validarInteres(double interes) throws DatoInvalidoException {
+        if (interes < 0 || interes > 100) {
+            throw new DatoInvalidoException("El interés debe estar entre 0 y 100.");
+        }
+    }
+
+    public void validarCuotas(int cuotas) throws DatoInvalidoException {
+        if (cuotas <= 0) {
+            throw new DatoInvalidoException("El número de cuotas debe ser mayor que cero.");
+        }
+    }
+
+    public void validarCliente(int clienteId)
+            throws RegistroNoEncontradoExcepcion , PersistenciaException {
+        try {
+            if (clienteDAO.buscarPorId(clienteId) == null) {
+                throw new RegistroNoEncontradoExcepcion ("No existe un cliente con id " + clienteId + ".");
+            }
+        } catch (SQLException e) {
+            throw new PersistenciaException("No se pudo verificar el cliente.", e);
+        }
+    }
+
+    public void validarEmpleado(int empleadoId)
+            throws RegistroNoEncontradoExcepcion , PersistenciaException {
+        try {
+            if (empleadoDAO.buscarPorId(empleadoId) == null) {
+                throw new RegistroNoEncontradoExcepcion ("No existe un empleado con id " + empleadoId + ".");
+            }
+        } catch (SQLException e) {
+            throw new PersistenciaException("No se pudo verificar el empleado.", e);
+        }
+    }
+
+    private final SincronizadorArchivos archivos = new SincronizadorArchivos();
 }

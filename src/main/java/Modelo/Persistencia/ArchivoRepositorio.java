@@ -39,8 +39,14 @@ public class ArchivoRepositorio<T> {
     }
 
     public void sobrescribir(List<T> objetos) throws IOException {
+        Path carpeta = ruta.toAbsolutePath().getParent();
+        if (carpeta != null) {
+            Files.createDirectories(carpeta);
+        }
         List<String> lineas = new ArrayList<>();
-        for (T o : objetos) lineas.add(aLinea.apply(o));
+        for (T o : objetos) {
+            lineas.add(aLinea.apply(o));
+        }
         Files.write(ruta, lineas, StandardCharsets.UTF_8);
     }
 }

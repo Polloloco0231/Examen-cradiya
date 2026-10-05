@@ -1,0 +1,4 @@
+1;Carlos Gómez;2002001;carlos@mail.com;3001234567
+2;Laura Ruiz;2002002;laura@mail.com;3109876543
+3;Pedro Díaz;2002003;;3205551234
+4;Sofía Herrera;2002004;sofia@mail.com;

@@ -33,11 +33,15 @@ public class Cliente extends Persona{
     }
 
     public String aLinea() {
-        return getId() + ";" + getNombre() + ";" + getDocumento() + ";" + getCorreo() + ";" + telefono ;
+        return getId() + ";" + getNombre() + ";" + getDocumento() + ";" +
+                (getCorreo() == null ? "" : getCorreo()) + ";" +
+                (telefono == null ? "" : telefono);
     }
 
-    public static Empleado deLinea(String linea) {
-        String[] d = linea.split(";");
-        return new Empleado(Integer.parseInt(d[0]), d[1], d[2], d[3], d[4], Double.parseDouble(d[5]));
+    public static Cliente deLinea(String linea) {
+        String[] d = linea.split(";", -1);
+        String correo = d[3].isEmpty() ? null : d[3];
+        String telefono = d[4].isEmpty() ? null : d[4];
+        return new Cliente(Integer.parseInt(d[0]), d[1], d[2], correo, telefono);
     }
 }
