@@ -45,7 +45,7 @@ public class Prestamo {
         this.cuotaMensual = montoTotal / cuotas;
         this.saldoPendiente = montoTotal;
         this.fechaVencimiento = fechaInicio.plusMonths(cuotas);
-        this.estado = EstadoPrestamo.PENDIENTE;
+        this.estado = EstadoPrestamo.ACTIVO;
     }
 
     public int getId() {
@@ -145,7 +145,6 @@ public class Prestamo {
     }
 
 
-
     public void registrarAbono(double abono) {
         saldoPendiente -= abono;
         if (saldoPendiente <= 0) {
@@ -155,9 +154,11 @@ public class Prestamo {
     }
 
     public boolean estaVencido() {
-        return estado == EstadoPrestamo.PENDIENTE
+        return estado == EstadoPrestamo.ACTIVO
                 && fechaVencimiento.isBefore(LocalDate.now());
     }
+
+
 
     public String aLinea() {
         return id + ";" + clienteId + ";" + empleadoId + ";" + monto + ";" + interes + ";" +

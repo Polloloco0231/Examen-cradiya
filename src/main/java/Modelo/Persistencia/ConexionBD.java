@@ -19,7 +19,7 @@ public class ConexionBD {
                 .getResourceAsStream("config.properties")) {
             if (in == null) {
                 throw new IllegalStateException(
-                        "No se encontró config.properties. Copie config.properties.example " +
+                        "No se encontró config.properties. Copie config.properties " +
                                 "a config.properties en src/main/resources y complete sus datos.");
             }
             props.load(in);

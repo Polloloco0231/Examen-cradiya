@@ -77,7 +77,7 @@ public class PrestamoControlador {
 
         Prestamo prestamo = buscarPorId(id);
 
-        if (nuevoEstado == EstadoPrestamo.PENDIENTE && prestamo.getSaldoPendiente() <= 0) {
+        if (nuevoEstado == EstadoPrestamo.ACTIVO && prestamo.getSaldoPendiente() <= 0) {
             throw new DatoInvalidoException(
                     "No se puede dejar pendiente un préstamo sin saldo por pagar.");
         }
@@ -90,6 +90,14 @@ public class PrestamoControlador {
             prestamoDAO.actualizar(prestamo);
         } catch (SQLException e) {
             throw new PersistenciaException("No se pudo actualizar el estado del préstamo.", e);
+        }
+    }
+
+    public List<Prestamo> buscarPorEstado() throws PersistenciaException {
+        try {
+            return prestamoDAO.listar();
+        } catch (SQLException e) {
+            throw new PersistenciaException("No se pudo consultar los préstamos.", e);
         }
     }
 

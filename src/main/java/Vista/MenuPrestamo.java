@@ -1,6 +1,7 @@
 package Vista;
 
 import Controlador.PrestamoControlador;
+import Controlador.ReporteControlador;
 import Modelo.Clases.EstadoPrestamo;
 import Modelo.Clases.Prestamo;
 import Modelo.Excepciones.DatoInvalidoException;
@@ -12,6 +13,7 @@ import java.util.List;
 public class MenuPrestamo {
 
     private final PrestamoControlador controlador = new PrestamoControlador();
+    private final ReporteControlador reporteControlador = new ReporteControlador();
 
     public void mostrar() {
         int opcion;
@@ -21,6 +23,7 @@ public class MenuPrestamo {
             System.out.println("2. Listar préstamos");
             System.out.println("3. Consultar un préstamo");
             System.out.println("4. Cambiar estado");
+            System.out.println("5. Buscar por estado");
             System.out.println("0. Volver");
             opcion = Entrada.leerEntero("Opción: ");
 
@@ -29,6 +32,7 @@ public class MenuPrestamo {
                 case 2 -> listar();
                 case 3 -> consultar();
                 case 4 -> cambiarEstado();
+                case 5 -> buscarPorEstado();
                 case 0 -> { }
                 default -> System.out.println("Opción no válida.");
             }
@@ -128,18 +132,44 @@ public class MenuPrestamo {
 
     private void cambiarEstado() {
         int id = Entrada.leerEntero("Id del préstamo: ");
-        System.out.println("1. PENDIENTE");
+        System.out.println("1. ACTIVO");
         System.out.println("2. PAGADO");
+        System.out.println("3. MORA");
         int opcion;
         do {
             opcion = Entrada.leerEntero("Nuevo estado: ");
         } while (opcion < 1 || opcion > 2);
-        EstadoPrestamo nuevo = (opcion == 1) ? EstadoPrestamo.PENDIENTE : EstadoPrestamo.PAGADO;
+        EstadoPrestamo nuevo = (opcion == 1) ? EstadoPrestamo.ACTIVO : EstadoPrestamo.PAGADO;
 
         try {
             controlador.cambiarEstado(id, nuevo);
             System.out.println("Estado actualizado a " + nuevo + ".");
         } catch (DatoInvalidoException | RegistroNoEncontradoExcepcion | PersistenciaException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }
+
+    private void buscarPorEstado() {
+        try {
+            List<Prestamo> lista = controlador.listar();
+            if (lista.isEmpty()) {
+                System.out.println("No hay préstamos registrados.");
+                return;
+            }
+
+            System.out.println("1. ACTIVO");
+            System.out.println("2. PAGADO");
+            System.out.println("3. MORA");
+
+            int id = Entrada.leerEntero("Seleccione el tipo de prestamos que quiere consultar: ");
+            int opcion;
+
+            System.out.printf("%n%-5s %-10s%n",
+                    "ID","ESTADO");
+            lista.forEach(p-> System.out.printf("%-5d %-10s%n",
+                    p.getId(), p.getEstado()));
+
+        } catch (PersistenciaException ex) {
             System.out.println("Error: " + ex.getMessage());
         }
     }

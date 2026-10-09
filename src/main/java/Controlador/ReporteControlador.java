@@ -31,7 +31,7 @@ public class ReporteControlador {
     public List<Prestamo> prestamosActivos() throws PersistenciaException {
         try {
             return prestamoDAO.listar().stream()
-                    .filter(p -> p.getEstado() == EstadoPrestamo.PENDIENTE)
+                    .filter(p -> p.getEstado() == EstadoPrestamo.ACTIVO)
                     .collect(Collectors.toList());
         } catch (SQLException e) {
             throw new PersistenciaException("No se pudo consultar los préstamos activos.", e);
@@ -96,7 +96,7 @@ public class ReporteControlador {
     public Optional<Cliente> clienteMayorDeuda() throws PersistenciaException {
         try {
             Map<Integer, Double> deudaPorCliente = prestamoDAO.listar().stream()
-                    .filter(p -> p.getEstado() == EstadoPrestamo.PENDIENTE)
+                    .filter(p -> p.getEstado() == EstadoPrestamo.ACTIVO)
                     .collect(Collectors.groupingBy(Prestamo::getClienteId,
                             Collectors.summingDouble(Prestamo::getSaldoPendiente)));
 

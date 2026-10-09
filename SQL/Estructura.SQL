@@ -31,7 +31,7 @@ CREATE TABLE prestamos (
   saldo_pendiente DECIMAL(12,2) NOT NULL,
   fecha_inicio DATE NOT NULL,
   fecha_vencimiento DATE NOT NULL,
-  estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
+  estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVO',
   FOREIGN KEY (cliente_id) REFERENCES clientes(id),
   FOREIGN KEY (empleado_id) REFERENCES empleados(id)
 );

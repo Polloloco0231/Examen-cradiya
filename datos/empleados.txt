@@ -1,3 +1,4 @@
 1;Ana Pérez;1001001;ana@crediya.com;Asesor;2500000.0
 2;Luis Martínez;1001002;luis@crediya.com;Cobrador;2200000.0
 3;Marta Rojas;1001003;;Cajero;1800000.0
+4;Ana Pérez;E-1791567175455;ana@crediya.com;Asesor;2500000.0

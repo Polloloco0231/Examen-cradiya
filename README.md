@@ -103,7 +103,7 @@ Abre MySQL Workbench (o la consola de MySQL) y ejecuta, **en este orden**:
 La contraseña **no está en el código**. Se lee de un archivo que Git ignora:
 
 1. Entra a `src/main/resources/`.
-2. Copia `config.properties.example` y nómbralo `config.properties`.
+2. Copia `config.properties` y nómbralo `config.properties`.
 3. Edita los valores con tus datos:
 
 ```properties
